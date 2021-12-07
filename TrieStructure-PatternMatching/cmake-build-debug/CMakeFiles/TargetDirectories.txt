@@ -1,0 +1,3 @@
+C:/Users/dvnny/OneDrive/Documents/4-Code/DataStructures-Algorithms/TrieStructure-PatternMatching/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/dvnny/OneDrive/Documents/4-Code/DataStructures-Algorithms/TrieStructure-PatternMatching/cmake-build-debug/CMakeFiles/TrieStructure_PatternMatching.dir
+C:/Users/dvnny/OneDrive/Documents/4-Code/DataStructures-Algorithms/TrieStructure-PatternMatching/cmake-build-debug/CMakeFiles/rebuild_cache.dir

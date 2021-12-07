@@ -1,0 +1,6 @@
+# ninja log v5
+0	391	6605445164616128	CMakeFiles/TrieStructure_PatternMatching.dir/main.cpp.obj	3b45ea61abf0fdb6
+8	575	6605445166457802	CMakeFiles/TrieStructure_PatternMatching.dir/Problem4.cpp.obj	f7e622c1d8db4d5d
+575	705	6605445167718951	TrieStructure_PatternMatching.exe	4242cacb5d699d63
+2	528	6605445393239792	CMakeFiles/TrieStructure_PatternMatching.dir/Problem4.cpp.obj	f7e622c1d8db4d5d
+529	649	6605445394390842	TrieStructure_PatternMatching.exe	4242cacb5d699d63

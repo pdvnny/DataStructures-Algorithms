@@ -1,0 +1,23 @@
+Features of Trie Data Structure:
+
+Insert and Search
+- search complexities become key length (considered optimal length)
+- Downside of structure: requires lots of space
+	
+    Implementation
+	- Each node of Trie consists of multiple branches
+	- Each branch represents a possible character
+	- (!!) mark each node with whether or not it represents the end of a word
+	-
+Delete
+
+
+Pattern Searching Using a Trie of all Suffixes
+- Two ways to solve the pattern searching problem
+	(1) Preprocess pattern - e.g. KMP, Rabin-Karp, Finite Automata
+	(2) Preprocess text - e.g. Suffix Tree
+- Time complexity
+	(1) preprocess pattern - best runtime is O(n)
+	(2) preprocess text - best runtime is O(m) (where m is the size of the pattern)
+- PREPROCESSING text is preferred when text doesn't change very frequently and there are many search queries
+- 
