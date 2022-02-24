@@ -1,0 +1,3 @@
+C:/Users/parke/OneDrive/Documents/4-Code/DataStructures-Algorithms/BinaryTrees/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/parke/OneDrive/Documents/4-Code/DataStructures-Algorithms/BinaryTrees/cmake-build-debug/CMakeFiles/BinaryTrees.dir
+C:/Users/parke/OneDrive/Documents/4-Code/DataStructures-Algorithms/BinaryTrees/cmake-build-debug/CMakeFiles/edit_cache.dir
