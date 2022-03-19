@@ -23,7 +23,6 @@
 
 #include <vector>
 #include <iostream>
-
 #include <list>
 
 using namespace std;
@@ -32,7 +31,7 @@ class Graph {
 
     int vertices;
     list<int>* adj; /// A pointer to an array containing adjacency lists
-    list<int>* adj_wt
+    list<int>* adj_wt;
 
 public:
 
@@ -42,25 +41,113 @@ public:
         adj_wt = new list<int>[vertices];
     }
 
+    int size() { return this->vertices; }
+
     void addEdge(int src, int dst, int wt);
+    void print();
 
     void BFS(int src);
 
 };
 
 void Graph::addEdge(int src, int dst, int wt) {
+    ///cout << "Started addEdge()" << endl;
+
     adj[src-100].push_back(dst);    /// Add dst to src's list
+
+    //cout << "Saved Edge Destination" << endl;
 
     /// I am adopting this structure from an example and the provided example is designed to specifically
     /// work with vertices starting at 0 and increasing ... so I adapted my version (for now) to work similarly
     /// which is the reason for the "src-100" for now.
 
-    adj[src-100].push_back(wt);
+    adj_wt[src-100].push_back(wt);
+    //cout << "Saved Edge Weight" << endl << "\n";
+}
+
+void Graph::print() {
+    for (int i = 0; i < vertices; i++) {
+        cout << "Node " << i+100 << ": ";
+        auto e = adj[i].begin();
+        auto wt = adj_wt[i].begin();
+        while (e != adj[i].end()) {
+            cout << "[" << *e << ", " << *wt << "] ";
+            e++;
+            wt++;
+        }
+        cout << endl;
+    }
 }
 
 void Graph::BFS(int src) {
 
+    /// Setting up "visited" mechanism
+    bool* visited = new bool[vertices];
+    for (int b = 0; b < vertices; b++) visited[b] = false;
+
+    /// Setting up "predecessor" array
+    int* predecessor = new int[vertices];
+    for (int p = 0; p < vertices; p++) predecessor[p] = -1;
+
+    /// More setup - queue & src & iterator for getting edges
+    list<int> queue;
+    queue.push_back(src);
     
+    visited[src-100] = true;
+    predecessor[src-100] = src-100;
+    
+    list<int>::iterator itr;
+    int current;
+
+    /// The actual algorithm
+    while (!queue.empty()) {
+
+        current = queue.front();
+        queue.pop_front();
+
+        /// iterating through all neighbors of current node
+        for (itr = adj[current-100].begin(); itr != adj[current-100].end(); ++itr) {
+            
+            /// only if not visited -> add to queue, mark visited, save current node as predecessor
+            if (!visited[(*itr)-100]) {
+                queue.push_back(*itr);
+                visited[(*itr)-100] = true;
+                predecessor[(*itr)-100] = current;
+            }
+
+            /// END for
+        }
+        
+        /// END while
+    }
+
+    /// PRINTING OUT PREDECESSOR ARRAY
+    list<int> q;
+    bool* printed = new bool[vertices];
+    
+    q.push_back(src);
+    printed[src-100] = true;
+
+    cout << "BFS Result: \nSource: ";
+
+    while (!q.empty()) {
+        current = q.front();
+        q.pop_front();
+        cout << current << " -> ";
+
+        for (int i = 0; i < vertices; i++) {
+            if (predecessor[i] == current and !printed[i]) {
+                q.push_back(i+100);
+                cout << (i+100) << " ";
+                printed[i] = true;
+            }
+        }
+        cout << endl;
+    }
+
+    delete [] visited;
+    delete [] predecessor;
+    delete [] printed;
     
 }
 

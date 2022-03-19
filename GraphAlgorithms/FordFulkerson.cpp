@@ -29,34 +29,39 @@ int main() {
 
 	int vertices[] = {100, 101, 102, 103, 104, 105};
 
-	Edge<char> edges[] = {	{100, 102, 1},  	// a -> b
-							{100, 103, 1},		// a -> c
-							{102, 100, 1},		// b -> a
-							{102, 104, 1},		// b -> d
-							{103, 102, 1},		// c -> b
-							{103, 105, 1},		// c -> e
-							{103, 106, 1},		// c -> f
-							{104, 100, 1},		// d -> a
-							{104, 105, 1},		// d -> e
-							{104, 106, 1},		// d -> f
-							{105, 102, 1},		// e -> b
-							{105, 103, 1},		// e -> c
-							{106, 105, 1},		// f -> e
-							{106, 104, 1},		// f -> d
-							{106, 103, 1}		// f -> c
-						};
+	int edges[][3] = {	{100, 101, 1},  	// a -> b
+						{100, 102, 1},		// a -> c
+						{101, 100, 1},		// b -> a
+						{101, 103, 1},		// b -> d
+						{102, 101, 1},		// c -> b
+						{102, 104, 1},		// c -> e
+						{102, 105, 1},		// c -> f
+						{103, 100, 1},		// d -> a
+						{103, 104, 1},		// d -> e
+						{103, 105, 1},		// d -> f
+						{104, 101, 1},		// e -> b
+						{104, 102, 1},		// e -> c
+						{105, 104, 1},		// f -> e
+						{105, 103, 1},		// f -> d
+						{105, 102, 1}		// f -> c
+					};
 
-	//vector<char> edg[] =  {};
 
-	Graph<char> G(6);
+	Graph G(6); /// This current version of the Graph depends completely on the vertices being numbered starting at 100
+				/// and increasing without gaps from there
 
-	cout << "Number of vertices in G: " << G.vertices << endl;
+	for (auto edge : edges)
+		G.addEdge(edge[0], edge[1], edge[2]);
 
-	/// THIS DIDN'T WORK ... I DON'T THINK THE EDGE LIST IS BEING CREATED CORRECTLY!
-	// cout << "First edge for every Vertex?" << endl;
-	// for (auto lst : G.E) cout << lst[0] << endl;
-
+	cout << "Number of vertices in G: " << G.size() << endl;
 	G.print();
+	cout << "\n";
+
+	/// As of march 19 2022, BFS seems to be working well for the simple Graph data structure
+
+	G.BFS(100);
+
+	G.BFS(105);
 
 
 	return 0;
