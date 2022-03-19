@@ -2,7 +2,7 @@
  * 
  *  Parker Dunn (pgdunn@bu.edu)
  * 
- * 	11 March 2022
+ * 	19 March 2022
  * 
  * 	DESCRIPTION
  * 
@@ -20,8 +20,6 @@
  * *************************************************************/
 
 #include<vector>
-
-//#include "DFS.h"
 #include "graph.h"
 
 using namespace std;
@@ -29,28 +27,28 @@ using namespace std;
 
 int main() {
 
-	char vtx[] = {'a', 'b', 'c', 'd', 'e', 'f'};
+	int vertices[] = {100, 101, 102, 103, 104, 105};
 
-	Edge<char> edges[] = {	{'a', 'b', 1},  	// a -> b
-							{'a', 'c', 1},		// a -> c
-							{'b', 'a', 1},		// b -> a
-							{'b', 'd', 1},		// b -> d
-							{'c', 'b', 1},		// c -> b
-							{'c', 'e', 1},		// c -> e
-							{'c', 'f', 1},		// c -> f
-							{'d', 'a', 1},		// d -> a
-							{'d', 'e', 1},		// d -> e
-							{'d', 'f', 1},		// d -> f
-							{'e', 'b', 1},		// e -> b
-							{'e', 'c', 1},		// e -> c
-							{'f', 'e', 1},		// f -> e
-							{'f', 'd', 1},		// f -> d
-							{'f', 'c', 1}		// f -> c
+	Edge<char> edges[] = {	{100, 102, 1},  	// a -> b
+							{100, 103, 1},		// a -> c
+							{102, 100, 1},		// b -> a
+							{102, 104, 1},		// b -> d
+							{103, 102, 1},		// c -> b
+							{103, 105, 1},		// c -> e
+							{103, 106, 1},		// c -> f
+							{104, 100, 1},		// d -> a
+							{104, 105, 1},		// d -> e
+							{104, 106, 1},		// d -> f
+							{105, 102, 1},		// e -> b
+							{105, 103, 1},		// e -> c
+							{106, 105, 1},		// f -> e
+							{106, 104, 1},		// f -> d
+							{106, 103, 1}		// f -> c
 						};
 
 	//vector<char> edg[] =  {};
 
-	DirectedGraph<char> G(vtx, edges, 6, 15);
+	Graph<char> G(6);
 
 	cout << "Number of vertices in G: " << G.vertices << endl;
 

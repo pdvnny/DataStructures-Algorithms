@@ -24,7 +24,47 @@
 #include <vector>
 #include <iostream>
 
+#include <list>
+
 using namespace std;
+
+class Graph {
+
+    int vertices;
+    list<int>* adj; /// A pointer to an array containing adjacency lists
+    list<int>* adj_wt
+
+public:
+
+    Graph(int n) {
+        this->vertices = n;
+        adj = new list<int>[vertices];
+        adj_wt = new list<int>[vertices];
+    }
+
+    void addEdge(int src, int dst, int wt);
+
+    void BFS(int src);
+
+};
+
+void Graph::addEdge(int src, int dst, int wt) {
+    adj[src-100].push_back(dst);    /// Add dst to src's list
+
+    /// I am adopting this structure from an example and the provided example is designed to specifically
+    /// work with vertices starting at 0 and increasing ... so I adapted my version (for now) to work similarly
+    /// which is the reason for the "src-100" for now.
+
+    adj[src-100].push_back(wt);
+}
+
+void Graph::BFS(int src) {
+
+    
+    
+}
+
+/************** MORE COMPLICATED GRAPH IMPLEMENATION BELOW **************/
 
 template <class k>
 class Edge {
