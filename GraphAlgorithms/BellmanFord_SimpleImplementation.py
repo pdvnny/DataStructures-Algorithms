@@ -71,7 +71,9 @@ if __name__ == "__main__":
 	graph = [[0, 1, -1], [0, 2, 4], [1, 2, 3],
 			[1, 3, 2], [1, 4, 2], [3, 2, 5],
 			[3, 1, 1], [4, 3, -3]]
-	BellmanFord(graph, V, E, 0)
+	
 
+	BellmanFord(graph, V, E, 0)
+	
 # This code is contributed by
 # sanjeev2552
