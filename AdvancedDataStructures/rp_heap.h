@@ -61,12 +61,16 @@ typedef struct node {
 	heap_node* left;
 	heap_node* right;
 
-	heap_node* parent;
+	heap_node* parent; // will use this as a dual purpose LL pointer for roots
 
-	heap_node(int nodeKey, int nodeData, bool isRoot) {
+	heap_node(int nodeData, int nodeKey) {
 		key = nodeKey;
 		data = nodeData;
-		root = isRoot
+		root = true;
+		
+		left = nullptr;
+		right = nullptr;
+		parent = nullptr;
 	}
 
 } heap_node;
@@ -79,6 +83,8 @@ private:
 	heap_node* min;
 
 	map<int, heap_node*> contents; // will use this keep a pointer to each node
+
+	void setRank(heap_node*);
 
 public:
 	rp_heap();
@@ -94,7 +100,27 @@ public:
 
 };
 
+	void rp_heap::setRank(heap_node* aNode) {
+		heap_node* L = aNode->left;
+		heap_node* R = aNode->right;
 
+		// node with no children
+		if (!L and !R) {
+
+			aNode->rank = 0; // because it is a leaf; doesn't matter if it is root or not
+
+		} else if (!L) { // node with no left child
+
+
+
+		} else if (!R) { // node with no right child
+
+
+
+		}
+
+
+	};
 
 
 #endif /* _RP_HEAP_H_ */
