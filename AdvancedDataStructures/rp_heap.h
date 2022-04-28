@@ -101,26 +101,34 @@ private:
 	map<int, heap_node*> contents; // will use this keep a pointer to each node
 
 	void setRank(heap_node*); 													// done
-	void merge(heap_node*, heap_node*);											// incomplete
+
+	heap_node* join(heap_node*, heap_node*);									// done
+	void merge();																// incomplete
+	/// My idea: 
+	///		"merge" is the recursive process that joins trees to make trees in the heap
+	///		"join"  is just the function to put any two trees together and would be called from within merge
+
 	void recalcMaxRank();														// done
 	void insert2root(heap_node*);												// done
+	/// insert2root -> Updates "lowest_rank", but does NOT update "min"
 
 public:
-	rp_heap();																	// incomplete
+	rp_heap();																	// incomplete -> feels like i'm still missing stuff...
 
 	bool empty() const { return (heap_size <= 0); }								// done
 	int size() const { return heap_size; };										// done
 
 	// normally would return data or something
-	int top() const { return min->data; }										// incomplete
+	int top() const { return min->data; }										// done
 
 	// return top and remove the min node 
 	//(plus all clean up after removing a root)
 	int extract_min();															// incomplete
 
-	heap_node* push(int, int); // would normally push whatever the data is      // done?
+	void push(int, int); // would normally push whatever the data is      		// done
 
 	void decreaseKey(int, int);													// done
+	/// decreaseKey -> Updates "lowest_rank" (via insert2root) and "min"
 
 };
 
@@ -128,13 +136,17 @@ public:
 
 rp_heap::rp_heap() {
 
+	this->min = nullptr;
+	this->lowest_rank = nullptr;
 
+	this->maxRank = -1;
+	this->heap_size = 0;
 
 };
 
 /**************** PUSH - add new element to heap; LAZY insert *************/
 
-heap_node* rp_heap::push(int newData, int newKey) {
+void rp_heap::push(int newData, int newKey) {
 
 	/// increase the size of the heap
 	this->heap_size++;
@@ -146,6 +158,8 @@ heap_node* rp_heap::push(int newData, int newKey) {
 	insert2root(newNode); // setRank(newNode); - taken care of by this function
 	contents.emplace(newKey, newNode);
 
+	/// Update min if necessary
+	if (min->data > newNode->data) this->min = newNode;
 };
 
 
@@ -235,6 +249,124 @@ void rp_heap::decreaseKey(int x, int newVal) {
 
 	/// Check if new root is the new minimum
 	if (min->data > node->data) min = node;
+};
+
+/*************** JOIN -> makes all changes to facilitate merging of two trees **/
+
+// **NOTE**: This function will not interact with the LL of root trees!!!
+// 			 The circularly linked list will have to be managed separately.
+
+heap_node* rp_heap::join(heap_node* nodeA, heap_node* nodeB) {
+
+	/// Quick Error Check
+	if (nodaA->rank != nodeB->rank) cerr << "\n\nWARNING: Trying to join two half-trees with different ranks!\n\n";
+
+	int max_data = max(nodeA->data, nodeB->data);
+
+	if (max_data != nodeA->data) { // Condition: nodeA->data is smaller and should be root
+
+		nodeB->root = false;
+		nodeB->parent = nodeA;
+		nodeB->right = nodeA->left;
+
+		nodeA->left = nodeB;
+
+		this->setRank(nodeB); // should recurse to nodeA and update that too
+
+		return nodeA;
+
+	} else { // Condition: nodeB->data is smaller or there was a tie and nodeB should be root.
+
+		nodeA->root = false;
+		nodeA->parent = nodeB;
+		nodeA->right = nodeB->left;
+
+		nodeB->left = nodeA;
+
+		this->setRank(nodeA); // should recurse to nodeB and update that too
+
+		return nodeB;
+	}
+
+};
+
+
+/*************** MERGE -> repeated merging of same rank trees ****************/
+
+void rp_heap::merge() {
+
+	int sz = this->maxRank * 10;
+
+	heap_node* rootTrees[sz];  // making array double in size to be safe
+	bool modified[sz];
+	for (int i = 0; i < sz; i++) {
+		rootTrees[i] = nullptr;
+		modified[i] = 0;
+	}
+
+	heap_node* roots_itr = this->lowest_rank;
+	heap_node* prev;
+
+	/// add first tree to array
+	rootTrees[roots_itr->rank] = roots_itr;
+	prev = roots_itr;
+	roots_itr = roots_itr->parent;
+
+
+	/// BELOW DOES NOT WORK!!
+	/// CHANGES:
+	/// (1) need a more structured way to move through the circular LL
+	/// (2) "blow up" the circular LL and must find a relaiable way to track each root
+
+	
+
+	/// do-while loop goes through the entire circularly linked list of roots each time
+	do {
+
+		/// intention is for this to go through all root nodes once
+		for (int n = 0; n < sz; n++) {
+			//while (roots_itr != lowest_rank) {
+
+			int cRank = roots_itr->rank;
+
+			if (rootTrees[cRank]) { // TRUE if the position where the current root would go is not empty
+
+				/// join two trees
+				roots_itr = this->join(roots_itr, rootTrees[cRank]);
+
+				/// cleanup
+				rootTrees[cRank] = nullptr;
+				rootTrees[roots->itr]
+
+				modified = true; /// ** this forces do-while to run again
+
+			} else {
+
+				/// add current root to the array and keep going
+
+			}
+
+			/// move iterators
+			prev = roots_itr;
+			roots_itr = roots_itr->parent;
+
+		}
+
+		int sum = 0;
+		for (int j = 0; j < sz; j++) {
+			sum = sum + modified[j];
+			modified[j] = 0;
+		}
+
+	} while (sum > 0);
+
+	/// From the array of root trees, REFORM the circular LL of roots
+
+
+
+	/// Re-examine key features of the heap - min, max_rank, lowest_rank
+	this->recalcMaxRank();
+
 };
 
 
