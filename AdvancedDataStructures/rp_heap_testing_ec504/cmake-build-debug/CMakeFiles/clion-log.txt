@@ -1,0 +1,4 @@
+C:\Users\dvnny\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\213.7172.20\bin\cmake\win\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=C:/Users/dvnny/AppData/Local/JetBrains/Toolbox/apps/CLion/ch-0/213.7172.20/bin/ninja/win/ninja.exe -G Ninja C:\Users\dvnny\OneDrive\Documents\4-Code\DataStructures-Algorithms\AdvancedDataStructures\rp_heap_testing_ec504
+-- Configuring done
+-- Generating done
+-- Build files have been written to: C:/Users/dvnny/OneDrive/Documents/4-Code/DataStructures-Algorithms/AdvancedDataStructures/rp_heap_testing_ec504/cmake-build-debug

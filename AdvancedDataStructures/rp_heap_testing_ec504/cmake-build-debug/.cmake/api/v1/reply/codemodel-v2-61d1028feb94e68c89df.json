@@ -1,0 +1,60 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.21"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "rp_heap_testing_ec504",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "rp_heap_testing_ec504::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-rp_heap_testing_ec504-Debug-e97ddf2ca909bda02a52.json",
+					"name" : "rp_heap_testing_ec504",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/dvnny/OneDrive/Documents/4-Code/DataStructures-Algorithms/AdvancedDataStructures/rp_heap_testing_ec504/cmake-build-debug",
+		"source" : "C:/Users/dvnny/OneDrive/Documents/4-Code/DataStructures-Algorithms/AdvancedDataStructures/rp_heap_testing_ec504"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}
