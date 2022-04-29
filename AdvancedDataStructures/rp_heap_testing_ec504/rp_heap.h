@@ -54,11 +54,13 @@
 #include <iostream>
 #include <vector>
 #include <climits>
+#include <list>
 
 using std::map;
 using std::cerr;
 using std::cout;
-using std::vector;
+//using std::vector;
+using std::list;
 
 typedef struct node {
 	int key;
@@ -337,10 +339,9 @@ void rp_heap::insert2root(heap_node* n) {
 
         } else { /// GENERAL CONDITION
 
-            while (n->rank > itr->parent->rank and itr != lowest_rank) {
+            while (n->rank >= itr->parent->rank and itr->parent != lowest_rank) {
                 itr = itr->parent;
             }
-
 
             //// (2) saving pointers to keep track of before/after
             heap_node *prev = itr;
@@ -447,6 +448,8 @@ void rp_heap::merge() {
 
 	int sz = (this->maxRank+1) * 10;
 
+    heap_node* tmp;
+
 	heap_node* rootTrees[sz];  // making array double in size to be safe
 	for (int i = 0; i < sz; i++) 
 		rootTrees[i] = nullptr;
@@ -466,10 +469,8 @@ void rp_heap::merge() {
 	// roots_itr = roots_itr->parent;
 
 	/// Create a vector of all the root nodes & delete all "next"/"parent" pointers
-	vector<heap_node*> roots;
+	list<heap_node*> roots;
 	heap_node* itr = this->lowest_rank;
-	heap_node* tmp;
-
 	while (itr->parent) { 	/// i.e., while (itr->parent != nullptr)
 		tmp = itr;
 		itr = itr->parent;
@@ -479,56 +480,50 @@ void rp_heap::merge() {
 
 	int start_size;
 	int cRank;
-	
-	do {
 
-		start_size = roots.size();
+    start_size = roots.size();
 
-		for (int i = 0; i < roots.size(); i++) {
+    for (int i = 0; i < start_size; i++) {
 
-			tmp = roots.back();
-			roots.pop_back();
-			cRank = tmp->rank;
+        tmp = roots.front();
+        roots.pop_front();
+        cRank = tmp->rank;
 
 
-			if (rootTrees[cRank]) { // TRUE if the position where the current root would go is not empty
+        while (rootTrees[cRank] != nullptr) { // TRUE if the position where the current root would go is not empty
 
-				/// join two trees
+            /// join two trees
 
-				tmp = this->join(tmp, rootTrees[cRank]);
+            tmp = this->join(tmp, rootTrees[cRank]);
 
-				/// cleanup
-				rootTrees[cRank] = nullptr;
-				rootTrees[tmp->rank] = tmp;
+            /// cleanup
+            rootTrees[cRank] = nullptr;
+            rootTrees[tmp->rank] = tmp;
 
-				//modified = true; /// ** this forces do-while to run again
+            //modified = true; /// ** this forces do-while to run again
 
-			} else {
+        }
 
-				/// add current root to the array and keep going
-				rootTrees[cRank] = tmp;
+        /// add current root to the array and keep going
+        rootTrees[cRank] = tmp;
 
-			}
-		} /// END OF FOR LOOP
+    } /// END OF FOR LOOP
 
-		/// put the roots back in the vector
-		for (int i = 0; i < sz; i++) {
-			if (rootTrees[i]) {
-				roots.push_back(rootTrees[i]);
-				rootTrees[i] = nullptr;
-			}
-		}
-
-
-	} while (roots.size() != start_size);
+    /// put the roots back in the vector
+    for (int i = 0; i < sz; i++) {
+        if (rootTrees[i]) {
+            roots.push_back(rootTrees[i]);
+            rootTrees[i] = nullptr;
+        }
+    }
 
 
 
 	/// From the array of root trees, REFORM the circular LL of roots
 	for (int i = 0; i < roots.size(); i++) {
 
-		tmp = roots.back();
-		roots.pop_back();
+		tmp = roots.front();
+		roots.pop_front();
 		cRank = tmp->rank;
 
 		rootTrees[cRank] = tmp;
