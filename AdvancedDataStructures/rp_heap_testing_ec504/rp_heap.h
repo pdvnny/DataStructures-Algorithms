@@ -510,12 +510,14 @@ void rp_heap::merge() {
     } /// END OF FOR LOOP
 
     /// put the roots back in the vector
+    /*
     for (int i = 0; i < sz; i++) {
         if (rootTrees[i]) {
             roots.push_back(rootTrees[i]);
             rootTrees[i] = nullptr;
         }
     }
+     */
 
 
 
