@@ -36,9 +36,20 @@ int main() {
 
     cout << "\nThe size of myHeap is " << myHeap->size() << "\n" << endl;
 
-    cout << "\nExtracting all nodes now..." << endl;
+    cout << "\nExtracting 4 Nodes now..." << endl;
 
-    for (int j = 0; j < size; j++) {
+    for (int j = 0; j < 4; j++) {
+        heap_extract = myHeap->extract_min();
+        cout << "Extraction #" << (j+1) << ": " << heap_extract << endl;
+    }
+
+    cout << "\nTime to decrease some keys..." << endl;
+
+    myHeap->decreaseKey(10, 5);
+    myHeap->decreaseKey(9, 8);
+    cout << "\n";
+
+    for (int j = 4; j < size; j++) {
         heap_extract = myHeap->extract_min();
         cout << "Extraction #" << (j+1) << ": " << heap_extract << endl;
     }

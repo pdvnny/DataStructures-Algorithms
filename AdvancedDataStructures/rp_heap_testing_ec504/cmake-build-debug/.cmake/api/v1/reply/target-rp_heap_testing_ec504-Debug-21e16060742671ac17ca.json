@@ -2,10 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "rp_heap_testing_ec504.exe"
-		},
-		{
-			"path" : "rp_heap_testing_ec504.pdb"
+			"path" : "rp_heap_testing_ec504"
 		}
 	],
 	"backtrace" : 1,
@@ -41,7 +38,7 @@
 					"fragment" : "-g"
 				},
 				{
-					"fragment" : "-std=gnu++2a"
+					"fragment" : "-std=gnu++20"
 				}
 			],
 			"language" : "CXX",
@@ -71,16 +68,12 @@
 			{
 				"fragment" : "",
 				"role" : "flags"
-			},
-			{
-				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",
-				"role" : "libraries"
 			}
 		],
 		"language" : "CXX"
 	},
 	"name" : "rp_heap_testing_ec504",
-	"nameOnDisk" : "rp_heap_testing_ec504.exe",
+	"nameOnDisk" : "rp_heap_testing_ec504",
 	"paths" : 
 	{
 		"build" : ".",
