@@ -54,11 +54,13 @@
 #include <iostream>
 #include <vector>
 #include <climits>
+#include <list>
 
 using std::map;
 using std::cerr;
 using std::cout;
-using std::vector;
+//using std::vector;
+using std::list;
 
 typedef struct node {
 	int key;
@@ -201,39 +203,83 @@ heap_node* rp_heap::extract_min_helper(heap_node* n) {
 
 int rp_heap::extract_min() {
 
-	// grab the value to return
-	int value = this->top();
-	int min_key = this->min->key;
 
-	/// DEALING WITH ISSUE: this->min and this->lowest_rank are EQUAL
-	/// 	** Need to keep some connection to the root LL **
-	if (this->lowest_rank == this->min)
-		this->lowest_rank = this->lowest_rank->parent;
-	
+    /// MERGING ON EXTRACT_MIN CALL!!
+    this->merge();
 
-	/// remove min from root LL (i.e., have other nodes bypass it)
-	heap_node* prev_min = this->min;
-	while (prev_min->parent != this->min)
-		prev_min = prev_min->parent;
-	prev_min->parent = min->parent;
+    // grab the value to return
+    int value = this->top();
+    int min_key = this->min->key;
 
-	/// Cut right "backbone" of the tree with min
-	heap_node* node_itr = this->extract_min_helper(min->left);
+    /// DEALING WITH ISSUE: this->min and this->lowest_rank are EQUAL
+    /// 	** Need to keep some connection to the root LL **
+    if (this->lowest_rank == this->min)
+        this->lowest_rank = this->lowest_rank->parent;
 
-	while (node_itr) 		 /// i.e., while node_itr != nullptr
-		this->extract_min_helper(node_itr);
-	
+    /// DEALING WITH ANOTHER ISSUE: extracting the only root in the circularly linked list
+    heap_node* node_itr;
+
+    /// (1) There was only one tree
+    if (this->lowest_rank == this->min) {
+
+        /// SPECIAL CASE: LAST NODE IN THE HEAP
+        if (this->lowest_rank->left == nullptr and this->lowest_rank->right == nullptr) {
+            delete(this->min);
+            this->lowest_rank = nullptr;
+            this->min = nullptr;
+            this->heap_size--;
+            this->contents.clear();
+            return value;
+        }
+
+        // move child to root
+        this->lowest_rank = this->lowest_rank->left;
+        this->lowest_rank->parent = this->lowest_rank;
+
+        if (this->lowest_rank->right) {
+            node_itr = this->extract_min_helper(this->lowest_rank);
+
+            while (node_itr)        /// i.e., while node_itr != nullptr
+                node_itr = this->extract_min_helper(node_itr);
+        }
+
+    } else { /// (2) more than one tree in circularly linked list, proceed as normal
+
+        /// remove min from root LL (i.e., have other nodes bypass it)
+        heap_node *prev_min = this->min;
+        while (prev_min->parent != this->min)
+            prev_min = prev_min->parent;
+        prev_min->parent = min->parent;
+
+        /// Cut right "backbone" of the tree with min - DOES NOT RUN IF "min" IS A ROOT
+        if (min->left) {
+
+            node_itr = this->extract_min_helper(min->left);
+
+            while (node_itr)        /// i.e., while node_itr != nullptr
+                node_itr = this->extract_min_helper(node_itr);
+        }
+    }
 
 	/// find the new minimum node
 	delete(this->min);
 	this->min = this->lowest_rank;
 	// using node_itr again
 	node_itr = this->min;
-	while (node_itr->parent != this->min) {
-		if (this->min->data > node_itr->data)
-			this->min = node_itr;
-		node_itr = node_itr->parent;
-	}
+
+    /// SPECIAL CASE: ONLY TWO NODES IN CIRCULAR LL OF ROOTS
+    // (1) IF ->  to deal with special case
+    if (this->min->parent->parent == this->min) {
+        if (this->min->parent->data < this->min->data)
+            this->min = this->min->parent;
+    } else {
+        // (2) ELSE -> deals with general case
+        while (node_itr->parent != this->min) {
+            if (this->min->data > node_itr->data)
+                this->min = node_itr;
+            node_itr = node_itr->parent;
+        }
+    }
 
 	/// remove extracted element from contents
 	auto toDelete = this->contents.find(min_key);
@@ -241,6 +287,8 @@ int rp_heap::extract_min() {
 		cerr << "\n\nError in 'extract_min': Could not locate element in 'contents' that needs to be removed.\n\n";
 	else
 		this->contents.erase(toDelete);
+
+    this->heap_size--;
 
 	return value;
 };
@@ -269,9 +317,14 @@ void rp_heap::push(int newData, int newKey) {
 	contents.emplace(newKey, newNode);
 
 	/// Update min if necessary
-	if (min->data > newNode->data) this->min = newNode;
-};
+	// SPECIAL CONDITION: this->min has not been updated and equal "nullptr"
+    if (this->min == nullptr) {
+        this->min = newNode;
+    } else {
+        if (this->min->data > newNode->data) this->min = newNode;
+    }
 
+};
 
 /******************** RECALCULATE MAX RANK METHOD ********************/
 
@@ -300,22 +353,46 @@ void rp_heap::insert2root(heap_node* n) {
 	this->setRank(n);
 
 
-	// (1) finding the right position
-	heap_node* itr = this->lowest_rank->parent;
-	while (n->rank > itr->parent->rank and itr != lowest_rank) {
-		itr = itr->parent;
-	}
+	/// (1) finding the right position
 
-	// (2) saving pointers to keep track of before/after
-	heap_node* prev = itr;
-	heap_node* next = itr->parent;
 
-	// (3) insert new tree in circularly linked list
-	n->parent = next;
-	prev->parent = n;
+    if (this->lowest_rank == nullptr) {  /// condition for first node
 
-	// (4) Update lowest_rank
-	if (this->lowest_rank->rank > n->rank) this->lowest_rank = n;
+        this->lowest_rank = n;
+        n->parent = n;
+
+    } else {  /// GENERAL CONDITION (most of the time this will run)
+
+        heap_node* itr = this->lowest_rank->parent;
+
+        /// handling the case where there is only one root node so far
+        if (itr == this->lowest_rank) {
+
+            n->parent = itr;
+            itr->parent = n;
+
+            if (itr->rank > n->rank) this->lowest_rank = n;
+
+        } else { /// GENERAL CONDITION
+
+            while (n->rank >= itr->parent->rank and itr->parent != lowest_rank) {
+                itr = itr->parent;
+            }
+
+            //// (2) saving pointers to keep track of before/after
+            heap_node *prev = itr;
+            heap_node *next = itr->parent;
+
+            /// (3) insert new tree in circularly linked list
+            n->parent = next;
+            prev->parent = n;
+        }
+
+        /// (4) Update lowest_rank
+        if (this->lowest_rank->rank > n->rank) this->lowest_rank = n;
+    }
+
+    this->recalcMaxRank();
 };
 
 
@@ -326,8 +403,14 @@ void rp_heap::decreaseKey(int x, int newVal) {
 	heap_node* node = contents.at(x);
 	// NOTE: the line above will throw an error if the key is not found
 
+    /// DEBUGGING
+    cout << "Decreasing Node ID: " << node->key << " from " << node->data << " to " << newVal << std::endl;
+
 	/// Don't try to change the value if the new value is greater than the current one
-	if (newVal > node->data) cerr << "\n\nINVALID: Tried to increase the value/data of a node with key " << node->key << "\n\n";
+	if (newVal > node->data) {
+        cerr << "\n\nINVALID: Tried to increase the value/data of a node with key " << node->key << "\n\n";
+        return;
+    }
 
 	/// Decrease the value/data
 	node->data = newVal;
@@ -341,9 +424,13 @@ void rp_heap::decreaseKey(int x, int newVal) {
 		node->parent = nullptr;
 		node->right = nullptr;
 
-		/// Re-link right tree to parent  **** I THINK I NEED A SPECIAL EXCEPTION FOR IF THE PARENT IS A ROOT NODE *****
-		p->right = r;
-		r->parent = p;
+		/// Re-link right tree to parent
+		if (p->root)
+            p->left = r;
+        else
+            p->right = r;
+
+        if (r) r->parent = p;
 
 		/// Incorporate node into circularly linked list of trees
 		this->insert2root(node);
@@ -405,7 +492,9 @@ heap_node* rp_heap::join(heap_node* nodeA, heap_node* nodeB) {
 
 void rp_heap::merge() {
 
-	int sz = this->maxRank * 10;
+	int sz = (this->maxRank+1) * 10;
+
+    heap_node* tmp;
 
 	heap_node* rootTrees[sz];  // making array double in size to be safe
 	for (int i = 0; i < sz; i++) 
@@ -426,10 +515,8 @@ void rp_heap::merge() {
 	// roots_itr = roots_itr->parent;
 
 	/// Create a vector of all the root nodes & delete all "next"/"parent" pointers
-	vector<heap_node*> roots;
+	list<heap_node*> roots;
 	heap_node* itr = this->lowest_rank;
-	heap_node* tmp;
-
 	while (itr->parent) { 	/// i.e., while (itr->parent != nullptr)
 		tmp = itr;
 		itr = itr->parent;
@@ -439,71 +526,76 @@ void rp_heap::merge() {
 
 	int start_size;
 	int cRank;
-	
-	do {
-
-		start_size = roots.size();
-
-		for (int i = 0; i < roots.size(); i++) {
-
-			tmp = roots.back();
-			roots.pop_back();
-			cRank = tmp->rank;
 
 
-			if (rootTrees[cRank]) { // TRUE if the position where the current root would go is not empty
+    /// PULL OUT EACH ROOT FROM VECTOR UNTIL ALL ROOTS ARE IN "rootTrees[]"
+    start_size = roots.size();
+    for (int i = 0; i < start_size; i++) {
 
-				/// join two trees
+        tmp = roots.front();
+        roots.pop_front();
 
-				tmp = this->join(tmp, rootTrees[cRank]);
+        while (rootTrees[tmp->rank] != nullptr) { // TRUE if the position where the current root would go is not empty
 
-				/// cleanup
-				rootTrees[cRank] = nullptr;
-				rootTrees[tmp->rank] = tmp;
+            cRank = tmp->rank;
 
-				//modified = true; /// ** this forces do-while to run again
+            /// join two trees
 
-			} else {
+            tmp = this->join(tmp, rootTrees[cRank]);
 
-				/// add current root to the array and keep going
-				rootTrees[cRank] = tmp;
+            /// cleanup
+            rootTrees[cRank] = nullptr;
 
-			}
-		} /// END OF FOR LOOP
+            // rootTrees[tmp->rank] = tmp;
+            //modified =true; /// ** this forces do-while to run again
 
-		/// put the roots back in the vector
-		for (int i = 0; i < sz; i++) {
-			if (rootTrees[i]) {
-				roots.push_back(rootTrees[i]);
-				rootTrees[i] = nullptr;
-			}
-		}
+        }
 
+        /// add current root to the array and keep going
+        rootTrees[tmp->rank] = tmp;
 
-	} while (roots.size() != start_size);
+    } /// END OF FOR LOOP
+
+    /// put the roots back in the vector
+    /*
+    for (int i = 0; i < sz; i++) {
+        if (rootTrees[i]) {
+            roots.push_back(rootTrees[i]);
+            rootTrees[i] = nullptr;
+        }
+    }
+     */
 
 
 
 	/// From the array of root trees, REFORM the circular LL of roots
-	for (int i = 0; i < roots.size(); i++) {
+		/// In "rootTrees", the roots are ordered how I want them to be in the circular LL
+//	for (int i = 0; i < roots.size(); i++) {
+//
+//		tmp = roots.front();
+//		roots.pop_front();
+//		cRank = tmp->rank;
+//
+//		rootTrees[cRank] = tmp;
+//	}
 
-		tmp = roots.back();
-		roots.pop_back();
-		cRank = tmp->rank;
+    int start = 0;
+    while (rootTrees[start] == nullptr)
+        start++;
+    if (start > sz)
+        cerr << "\nError in 'merge': Not root found in 'rootTrees' that is less than sz (the size of rootTrees)" << std::endl;
 
-		rootTrees[cRank] = tmp;
-	}
-
-	/// In "rootTrees", the roots are ordered how I want them to be in the circular LL
-	tmp = rootTrees[0];
-	rootTrees[0] = nullptr;
+	tmp = rootTrees[start];
+	rootTrees[start] = nullptr;
 
 	this->lowest_rank = tmp;
 
-	for (int j = 1; j < sz; j++) {
-		tmp->parent = rootTrees[j];
-		rootTrees[j] = nullptr;
-		tmp = tmp->parent;
+	for (int j = start; j < sz; j++) {
+		if (rootTrees[j]) {
+            tmp->parent = rootTrees[j];
+		    rootTrees[j] = nullptr;
+		    tmp = tmp->parent;
+        }
 	}
 	tmp->parent = this->lowest_rank;
 
@@ -521,8 +613,10 @@ void rp_heap::setRank(heap_node* aNode) {
 
 	/// special procedure if current node is a root
 	if (aNode->root) {
-		
-		aNode->rank = aNode->left->rank + 1;
+		if (!aNode->left)
+            aNode->rank = 0;
+        else
+            aNode->rank = aNode->left->rank + 1;
 
 		return;
 	}
@@ -532,7 +626,7 @@ void rp_heap::setRank(heap_node* aNode) {
 	heap_node* R = aNode->right;
 	int rankR, rankL;
 	int rankDiff;
-	int prevRank = aNode->rank;
+	//int prevRank = aNode->rank;
 
 	// node with no children
 	if (!L and !R) {
@@ -556,27 +650,30 @@ void rp_heap::setRank(heap_node* aNode) {
 
 	}
 
+
 	if (!L and !R) {
 		/// need to bypass adjusting aNode->rank again
-		if (prevRank != 0)
+		//if (prevRank != 0)
 			setRank(aNode->parent);
-		else
-			return;
+		//else
+		//	return;
 
 	} else {
 
-		rankDiff = rankL - rankR;
+        rankDiff = rankL - rankR;
 
-		if (rankDiff > 1 or rankDiff < -1) {
-			aNode->rank = max(rankR, rankL);
-		} else {
-			aNode->rank = max(rankR, rankL) + 1;
-		}
+        if (rankDiff > 1 or rankDiff < -1) {
+            aNode->rank = max(rankR, rankL);
+        } else {
+            aNode->rank = max(rankR, rankL) + 1;
+        }
 
-		if (prevRank != aNode->rank) setRank(aNode->parent);
-		else return;
+        setRank(aNode->parent);
 
-	}
+        //if (prevRank != aNode->rank) setRank(aNode->parent);
+        //else return;
+
+    }
 
 };
 
